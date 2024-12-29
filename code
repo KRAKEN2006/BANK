@@ -1,0 +1,494 @@
+import random as r 
+import mysql.connector as mycon
+def createdb():      #TO CREATE DATABASE
+        con=mycon.connect(host="localhost",username="root",passwd="atharvIS29@")
+        cur=con.cursor()
+        cur.execute("SHOW DATABASES")
+        flag1=False
+        for dbname in cur:
+            if("GWB" in dbname):
+                flag1=True
+                break
+        if not flag1:
+            cur.execute("Create database GWB")
+def tbsav():         #TO CREATE TABLE SAVINGS_AC
+        flag10=True
+        while flag10:
+                cur=con.cursor()
+                cur.execute("SHOW TABLES")
+                d1=cur.fetchall()
+                flag5=False
+                for tbname1 in d1:
+                    if("SAVINGS_ACC" in tbname1):
+                        flag5=True
+                        break
+                flag10=False   
+        if not flag5:   
+                str1="CREATE TABLE SAVINGS_ACC (Acc_no int primary key, Name varchar(255), Adderess varchar(255), Phone_no char(10), Aadhar_no varchar(20), Balance int, pin char(4)) "
+                cur=con.cursor()
+                cur.execute(str1)
+def tbcur():       #TO CREATE TABLE CURRENT_ACC       
+        flag11=True
+        while flag11:
+                cur=con.cursor()
+                cur.execute("SHOW TABLES")
+                d2=cur.fetchall()
+                flag11=False
+                flag6=False
+                for tbname2 in d2:
+                    if("CURRENT_ACC" in tbname2):
+                        flag6=True
+                        break
+                flag11=False
+        if not flag6:
+                str2="CREATE TABLE CURRENT_ACC (Acc_no int primary key, Name varchar(255), Adderess varchar(255), Phone_no char(10), Aadhar_no varchar(20), Balance int, pin char(4)) "
+                cur=con.cursor()
+                cur.execute(str2)
+def dis_play(accno,typ):  #TO DISPLAY PROFILE
+        cur=con.cursor()
+        if typ==1:
+                query= "select * from SAVINGS_ACC where Acc_no=%s"
+        elif typ==2:
+                query= "select * from CURRENT_ACC where Acc_no=%s"
+        cur.execute(query,[accno])
+        data=cur.fetchall()
+        for rec in data:
+                print(" ."*100,"\n --> ACCOUNT NUMBER           : ",rec[0] ,"\n --> NAME                              : ",rec[1],"\n --> ADDERESS                       : ",rec[2],"\n --> PHONE NUMBER                : ",rec[3],"\n --> AADHAR NUMBER             : ",rec[4],"\n --> BALANCE                         : ",rec[5],"\n --> PIN                                  : ",rec[6],"\n ","."*100)
+def dele():       #TO DELETE ACCOUNT
+        while True:
+                print("\n \n ENTER YOUR ACCOUNT TYPE \n ENTER 1 FOR SAVINGS ACCOUNT \n ENTER 2 FOR CURRENT ACCOUNT")
+                choice5=int(input(" ENTER : "))
+                cur=con.cursor()
+                if choice5==1:
+                        cur.execute("select acc_no,pin from SAVINGS_ACC")
+                        break
+                elif choice5==2:
+                        cur.execute("select acc_no,pin from CURRENT_ACC")
+                        break
+                else:
+                        print("\n ENTER A VALID CHOICE\n")
+        a=cur.fetchall()
+        accno=int(input("YOUR ACCOUNT NUMBER :"))
+        while True:
+                pin = input(" ENTER YOUR PIN: ")
+                if len(pin)==4 :
+                        break
+                else:
+                        print(" \n ENTER A VALID PIN \n ")
+        flag3=False
+        for i in a:
+                if (accno,pin)==i:
+                        a=i
+                        flag3=True
+                        break
+                else:
+                        flag3=False
+        if flag3==True:
+                cur=con.cursor()
+                if choice5==1:
+                        query="delete from SAVINGS_ACC where Acc_no={}".format(accno)
+                elif choice5==2:
+                        cur=con.cursor()
+                        query="delete from CURRENT_ACC where Acc_no={}".format(accno)
+                cur.execute(query)
+                con.commit()
+                print("="*45,"\n \t         YOUR ACCOUNT IS DELETED \n \t               THANK YOU \n","="*45,"\n \n")
+        else:
+                print("="*45,"\n \t              INVALID ACCOUNT NUMBER OR PIN \n","="*45)
+def back():
+        while True:
+                print("\n \n ENTER 1 TO GO BACK TO PREVIOUS MENU \n ENTER 2 TO GO BACK TO MAIN MENU")
+                choice3=int(input(" ENTER YOUR CHOICE : "))
+                if choice3==1:
+                        flag4=True
+                        break
+                elif choice3==2:
+                        flag4=False
+                        break
+                else:
+                        print("\n ",": "*96,"\n \t            ENTER A VALID CHOICE \n ",":"*96,"\n \n")
+        return flag4
+def update_acc(accno,typ): #TO UPDATE PERSONAL INFO
+        print(" Enter your choice \n 1. Update Name \n 2. Update Address \n 3. Update Phone number \n 4. Update PIN")
+        choice7 = int(input("Enter your choice : "))
+        cur=con.cursor()
+        if typ==1:
+                if choice7 == 1:
+                        while True:
+                                Name = input(" Enter Name : ")
+                                if len(Name)==0:
+                                        print(" \n PLEASE ENTER A VALID NAME\n  ")
+                                else:
+                                        break
+                        query = f"update savings_acc set name = '{name}' where Acc_no = {accno};"
+                elif choice7 == 2:
+                        while True:
+                                Address = input(" Enter Address : ")
+                                if len(Address)==0:
+                                        print(" \n PLEASE ENTER A VALID ADDRESS \n  ")
+                                else:
+                                        break
+                        query = f"update savings_acc set adderess = '{adderess}' where Acc_no = {accno};"
+                elif choice7 == 3:
+                        while True:
+                                Phone_no = input(" Enter your Phone Number :")
+                                if Phone_no.isnumeric():
+                                        if len(Phone_no)!=10:
+                                                print(" \n PLEASE ENTER A VALID 10 DIGIT MOBILE NUMBER \n  ")
+                                        else:
+                                                break
+                                else:
+                                        print(" \n PLEASE ENTER A VALID 10 DIGIT MOBILE NUMBER \n  ")
+                        query = f"update savings_acc set Phone_no = '{Phone_no}' where Acc_no = {accno};"
+                elif choice7 == 4:
+                        while True:
+                                pin = input(" Select 4 digit pin of your choice = ")
+                                if len(pin)==4 :
+                                        break
+                                else:
+                                        print(" \n ONLY FOUR DIGITS ARE ALLOWED \n \t TRY AGAIN \n ")
+                        query = f"update savings_acc set pin = '{pin}' where Acc_no = {accno};"
+        elif typ==2:
+                if choice7 == 1:
+                        while True:
+                                Name = input(" Enter Name : ")
+                                if len(Name)==0:
+                                        print(" \n PLEASE ENTER A VALID NAME\n  ")
+                                else:
+                                        break
+                        query = f"update current_acc set name = '{name}' where Acc_no = {accno};"
+                elif choice7 == 2:
+                        while True:
+                                Address = input(" Enter Address : ")
+                                if len(Address)==0:
+                                        print(" \n PLEASE ENTER A VALID ADDRESS \n  ")
+                                else:
+                                        break
+                        query = f"update current_acc set adderess = '{adderess}' where Acc_no = {accno};"
+                elif choice7 == 3:
+                        while True:
+                                Phone_no = input(" Enter your Phone Number :")
+                                if Phone_no.isnumeric():
+                                        if len(Phone_no)!=10:
+                                                print(" \n PLEASE ENTER A VALID 10 DIGIT MOBILE NUMBER \n  ")
+                                        else:
+                                                break
+                                else:
+                                        print(" \n PLEASE ENTER A VALID 10 DIGIT MOBILE NUMBER \n  ")
+                        query = f"update current_acc set Phone_no = '{Phone_no}' where Acc_no = {accno};"
+                elif choice7 == 4:
+                        while True:
+                                pin = input(" Select 4 digit pin of your choice = ")
+                                if len(pin)==4 :
+                                        break
+                                else:
+                                        print(" \n ONLY FOUR DIGITS ARE ALLOWED \n \t TRY AGAIN \n ")
+                        query = f"update current_acc set pin = '{pin}' where Acc_no = {accno};"
+        cur.execute(query)
+        con.commit()
+        print("UPDATED")         
+def create_acc():   #TO CREATE ACCOUNT 
+        flag11=True
+        while flag11:
+                print("\n \n WHAT TYPE OF ACCOUNT DO YOU WANT TO CREATE \n ENTER 1 FOR SAVINGS ACCOUNT \n ENTER 2 FOR CURRENT ACCOUNT")
+                choice4=input(" ENTER : ")
+                if choice4.isnumeric():
+                        choice4=int(choice4)
+                        if choice4==1:
+                                flag10=True
+                                while flag10:
+                                        Accno=r.randint(100,1000)
+                                        cur=con.cursor()
+                                        cur.execute("SELECT Acc_no FROM SAVINGS_ACC")
+                                        data=cur.fetchall()
+                                        if data==[]:
+                                                flag10=False
+                                        else:
+                                                for rec in data:                
+                                                        if rec==(Accno,):
+                                                                flag10=True
+                                                                break
+                                                        else:
+                                                                flag10=False
+                                flag11=False
+                        elif choice4==2:
+                                flag10=True
+                                while flag10:
+                                        Accno=r.randint(100,1000)
+                                        cur=con.cursor()
+                                        cur.execute("SELECT Acc_no FROM CURRENT_ACC")
+                                        data=cur.fetchall()
+                                        if data==[]:
+                                                flag10=False
+                                        else:
+                                                for rec in data:
+                                                        if rec==(Accno,):
+                                                                flag10=True
+                                                                break
+                                                        else:
+                                                                flag10=False
+                                flag11=False
+                        else:
+                                flag11=True
+                                print("\n ",":"*96,"\n \t            ENTER A VALID CHOICE \n ",":"*96,"\n \n")
+                else:
+                        print("\n ",":"*96," \n \t            ENTER A VALID CHOICE \n ",":"*96," \n \n")
+        while True:
+                Name = input(" Enter Name : ")
+                if len(Name)==0:
+                        print(" \n PLEASE ENTER A VALID NAME\n  ")
+                elif Name.isalpha():
+                       break 
+                else:
+                        print(" \n PLEASE ENTER A VALID NAME\n  ") 
+        while True:
+                Address = input(" Enter Address : ")
+                if len(Address)==0:
+                        print(" \n PLEASE ENTER A VALID ADDRESS \n  ")
+                else:
+                        break
+        while True:
+                Phone_no = input(" Enter your Phone Number :")
+                if Phone_no.isnumeric():
+                        if len(Phone_no)!=10:
+                                print(" \n PLEASE ENTER A VALID 10 DIGIT MOBILE NUMBER \n  ")
+                        else:
+                                break
+                else:
+                        print(" \n PLEASE ENTER A VALID 10 DIGIT MOBILE NUMBER \n  ")
+        while True:
+                Aadhar_no = input(" Enter Aadhar Number : ")
+                if Aadhar_no.isnumeric():
+                        break
+                else:
+                        print("\n ENTER NUMBERS ONLY\n")
+        while True:
+                Balance = input(" Enter Amount You Want To Deposit : ")
+                if Balance.isnumeric():
+                        Balance=int(Balance)
+                        if Balance>100:
+                                break
+                        else:
+                                print("\n MINIMUM BALANCE LIMIT IS 100Rs\n")
+                else:
+                        print("\n ENTER A VALID AMOUNT \n")
+        while True:
+                pin = input(" Select 4 digit pin of your choice = ")
+                if len(pin)==4 :
+                        break
+                else:
+                        print(" \n ONLY FOUR DIGITS ARE ALLOWED \n \t TRY AGAIN \n ")
+        while True:
+                s="abcdef123"
+                a=''.join(r.sample(s,len(s)))
+                print("\nSECURITY PIN: ",a)
+                z=input("ENTER THE SECURITY PIN: ")
+                if z==a:
+                        break
+                else:
+                        pass
+        if choice4==1:
+                cur=con.cursor()
+                cur.execute("insert into SAVINGS_ACC values (%s, %s, %s, %s, %s, %s,%s)", (Accno, Name, Address, Phone_no, Aadhar_no, Balance, pin))
+                con.commit()
+        elif choice4==2:
+                cur=con.cursor()
+                cur.execute("insert into CURRENT_ACC values (%s, %s, %s, %s, %s, %s,%s)", (Accno, Name, Address, Phone_no, Aadhar_no, Balance, pin))
+                con.commit()
+        print("\n \n ","="*42," \n \n \t ACCOUNT CREATED SUCCESSFULLY \n \n ","="*42," \n \t YOUR ACCOUNT NUMBER IS : ",Accno)
+        cur.execute("create table {}_withdraw (Wit varchar(20),Time varchar(20))".format(Accno))
+        cur.execute("create table {}_deposited (dep varchar(20),Time varchar(20))".format(Accno))
+def Send_money(accn):     # To Send Money
+        a=input("Enter the Acc_no to whom you would like to send money to: ")
+        b=int(input("Enter the amount of money you would like to send to the respective member"))
+        accno="({},)".format(accn)
+        cur.execute("select acc_no from CURRENT_ACC")
+        a_t =cur.fetchall()
+        d="({},)".format(a_t)
+        cur.execute("select Acc_no from savings_acc;")
+        a_t_t=cur.fetchall()
+        ello="({},)".format(a_t_t)
+        flag=False
+        if accno in d:
+                if a in d:
+                        flag=True
+                        cur.execute("select balance from current_acc where acc_no = {} ".format(accn))
+                        c=cur.fetchall()
+                        c_t= c[0][0]
+                        if b<=c_t:
+                                cur.execute("update current_acc set balance = balance - {} where acc_no = {}".format(b,accn))
+                                cur.execute("update current_acc set balance = balance + {} where acc_no = {}".format(b,a))
+                                con.commit()
+                                print("Money Sent!!")
+                        else:
+                                print("I am sorry but you are broke to send that kind of money")        
+                elif a in ello:
+                        flag=True
+                        cur.execute("select balance from current_acc where acc_no = {};".format(accn))
+                        c=cur.fetchall()
+                        c_t_t=c[0][0]
+                        if b<=c_t_t:
+                                cur.execute("update current_acc set balance = balance - {} where acc_no = {};".format(b,accn))
+                                cur.execute("update savings_acc set balance = balance + {} where acc_no = {};".format(b,a))
+                                con.commit()
+                                print("Money Sent!!")
+                        else:
+                                print("I am sorry but you are broke to send that kind of money")
+                if flag==True:
+                        cur.execute("select sysdate()")
+                        c=cur.fetchall()
+                        E=c[0][0]
+                        cur.execute("insert into {}_withdraw values('{}','{}')".format(accn,b,E))
+                        cur.execute("insert into {}_deposited values('{}','{}')".format(a,b,E))
+                        con.commit()
+        elif accno in ello:
+                if a in d:
+                        flag=True
+                        cur.execute("select balance from savings_acc where acc_no = {};".format(accn))
+                        c=cur.fetchall()
+                        c_t_t_t=c[0][0]
+                        if b<=c_t_t_t:
+                                cur.execute("update savings_acc set balance = balance - {} where acc_no = {};".format(b,accn))
+                                cur.execute("update current_acc set balance = balance + {} where acc_no = {};".format(b,a))
+                                con.commit() 
+                                print("Money Sent!!")
+                        else:
+                                print("I am sorry but you are broke to send that kind of money")        
+                elif a in ello:
+                        flag=True
+                        cur.execute("select balance from savings_acc where acc_no = {};".format(accn))
+                        c=cur.fetchall()
+                        c_t_t_t_t=c[0][0]
+                        if b<=c_t_t_t_t:
+                                cur.execute("update savings_acc set balance = balance - {} where acc_no = {};".format(b,accn))
+                                cur.execute("update savings_acc set balance = balance + {} where acc_no = {};".format(b,a))
+                                con.commit()
+                                print("Money Sent!!")
+                        else:
+                                print("I am sorry but you are broke to send that kind of money")
+                if flag==True:
+                        cur.execute("select sysdate()")
+                        c=cur.fetchall()
+                        E=c[0][0]
+                        cur.execute("insert into {}_withdraw values('{}','{}')".format(accn,b,E))
+                        cur.execute("insert into {}_deposited values('{}','{}')".format(a,b,E))
+                        con.commit()
+        if flag==False:
+                print("\nSORRY ACCOUNT DO NOT EXIST\n")
+def history(accn):
+    cur.execute("select Time,dep from {}_deposited".format(accn))
+    a=cur.fetchall()
+    cur.execute("select Time,wit from {}_withdraw".format(accn))
+    b=cur.fetchall()
+    i=0
+    if (len(a))!=0:
+            print("The Details regarding the money added to the account is as follows : - \n")
+            while i in range(len(a)):
+                    d=a[i][0]
+                    e=a[i][1]
+                    print("{}) The Money that been added is {} while the time was {}".format(i+1,e,d))
+                    i+=1
+    else:
+            print("\nThere has been no Trasaction regarding the addition of the money to the account\n")
+    i=0
+    if (len(b))!=0:        
+            print("\n\nThe Details regarding the money sent to the other account is as follows : - \n")
+            while i in range(len(b)):
+                    f=b[i][0]
+                    h=b[i][1]
+                    print("{}) The Money that been sent is {} while the time was {}".format(i+1,h,f))
+                    i+=1
+    else:
+            print("\nThere has been no Trasaction regarding sending money to the other accounts\n")
+#DRIVER CODE
+createdb()
+con=mycon.connect(host="localhost",username="root",passwd="atharvIS29@",database="GWB")
+tbsav()
+tbcur()
+print('',"="*50," \n \n \t    WELCOME TO GOLIATH NATIONAL BANK \n \n","="*50,"\n CHOOSE WANT YOU WANT TO DO")
+while True:
+        print("\n MAIN MENU : \n ENTER 1 : CREATE BANK ACCOUNT \n ENTER 2 : LOGIN INTO EXISTING ACCOUNT \n ENTER 3 : DELETE ACCOUNT \n ENTER 4 : EXIT")
+        choice1=input(" ENTER : ")
+        if choice1.isnumeric():
+                choice1=int(choice1)
+                if choice1==1:
+                        create_acc()
+                elif choice1==2:
+                        flag12=True
+                        while flag12:
+                                print("\n \n ENTER YOUR ACCOUNT TYPE \n ENTER 1 FOR SAVINGS ACCOUNT \n ENTER 2 FOR CURRENT ACCOUNT")
+                                choice5=int(input(" ENTER : "))
+                                if choice5==1:
+                                        cur=con.cursor()
+                                        cur.execute("select acc_no,pin from SAVINGS_ACC")
+                                        flag12=False
+                                elif choice5==2:
+                                        cur=con.cursor()
+                                        cur.execute("select acc_no,pin from CURRENT_ACC")
+                                        flag12=False
+                                else:
+                                        flag12=True
+                                        print("\n ",":"*100," \n \t            ENTER A VALID CHOICE \n ",":"*100," \n \n")
+                        a=cur.fetchall()
+                        accno=int(input(" YOUR ACCOUNT NUMBER : "))
+                        pin=input(" ENTER PIN : ")
+                        flag3=False
+                        for i in a:
+                                if (accno,pin)==i:
+                                        flag3=True
+                                        break
+                                else:
+                                        pass
+                        if flag3==True:
+                                print("="*46,"\n \t             LOGIN SUCCESSFUL \n","="*46)                    
+                                flag4=True
+                                while flag4:
+                                        d=choice5
+                                        e=pin
+                                        b=accno
+                                        cur=con.cursor()
+                                        if d==1:
+                                                query="SELECT BALANCE FROM SAVINGS_ACC WHERE Acc_no=%s"
+                                        elif d==2:
+                                                query="SELECT BALANCE FROM CURRENT_ACC WHERE Acc_no=%s"
+                                        cur.execute(query,[b])
+                                        bal=cur.fetchall()
+                                        print("\n \n YOUR CURRENT BALANCE IS:",bal[0][0],"\n\n CHOOSE WHAT YOU WISH TO DO \n ENTER 1: SEE PERSONAL INFO \n ENTER 2: SEE TRANSACTION HISTORY \n ENTER 3: SEND MONEY  \n ENTER 4: UPDATE PERSONAL INFO \n ENTER 5: GO BACK TO MAIN MENU\n ENTER 6: CUSTOMER SUPPORT \n")
+                                        choice2=int(input(" ENTER : "))
+                                        if choice2==1:
+                                                dis_play(b,d)
+                                                flag4=back()
+                                        elif choice2==2:
+                                                history(b)
+                                                flag4=back()
+                                        elif choice2==3:
+                                                Send_money(b)
+                                                flag4=back()
+                                        elif choice2==4:
+                                                update_acc(b,d)
+                                                flag4=back()
+                                        elif choice2==5:
+                                                break
+                                        elif choice2==6:
+                                                print("="*60,"\n\n\t Contact us at:     support.gnb@gmail.com\n\t\t\t       OR \n\t\t             +91 9810276345        \n\n","="*60,"\n \n")
+                                                flag4=back()
+                                        else:
+                                                print("\n ",":"*100," \n \t            ENTER A VALID CHOICE \n ",":"*100,"\n \n")
+                        else:
+                                print("="*45," \n \t     INVALID ACCOUNT NUMBER OR PIN\n","="*45)    
+                elif choice1==3:
+                        choice6=input("ARE YOU SURE : ")
+                        if choice6=='y' or choice6=='Y' or choice6=='yes' or choice6=='Yes' or choice6=='YES' :
+                                cur=con.cursor()
+                                dele()
+                        else:
+                                pass                  
+                elif choice1==4:
+                        print("\n \n                 THANK YOU FOR YOUR TIME")
+                        break
+                else:
+                        print("\n ",":"*100,"  \n \t            ENTER A VALID CHOICE \n ",":"*100," \n \n")
+                        pass
+        else:
+                        print("\n ",":"*100," \n \t            ENTER A VALID CHOICE \n ",":"*100,"\n \n")
+                        
